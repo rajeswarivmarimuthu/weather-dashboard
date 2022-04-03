@@ -1,53 +1,58 @@
 
+// Declaring gloable variables
 var submitBtn = document.getElementById("submitBtn");
 var cityName = document.getElementById("searchCitybyName");
 var cityDiv = document.getElementById('recentSearch');
+var cityErrorEl = document.getElementById('cityHelp');
 var currWeatherDiv = document.getElementById("current-weather");
+var defaultCity;
 var trimmedCityName;
 var weatherAPIKey = '&appid=4bb64f9765f05da214fa658d7da7c6c8'
 var geoBaseURL = 'http://api.openweathermap.org/geo/1.0/direct?q=';
 var forecastURL = 'https://api.openweathermap.org/data/2.5/onecall?lat='
 
-
+//function to prepare for Geo coding
 function callGeoCoding(event) {
     event.preventDefault();
     event.stopPropagation();
 
-   // console.log('in geocoding');
-    // console.log(event.target.id, event.target.innerText);
-
-
     if (event.target.id == 'submitBtn') {
       trimmedCityName = cityName.value.trim();
+      cityName.setAttribute ('placeholder',trimmedCityName);
       cityName.value = '';
-      if(trimmedCityName){
-        recentSearches(trimmedCityName)
-      };
-
     } else if (event.target.id == 'recentSearchedCity') {
       trimmedCityName = event.target.innerText;
+      cityName.setAttribute ('placeholder',trimmedCityName)
     }
-
-    // console.log(trimmedCityName);
+    console.log('in geocoding')
     if (trimmedCityName) {
       getLatLon(trimmedCityName);
     }
     
 }
 
+//function for retrieving lat/longtitude 
 function getLatLon(trimmedCityName) {
     var arrLatLon = [];
     georeqURL = geoBaseURL + trimmedCityName + '&limit=5' +  weatherAPIKey;
-    // console.log(georeqURL);
+    console.log(georeqURL);
+
     fetch(georeqURL)
     .then(function (response) {
       if (response.ok) {
-        //console.log(response);
+
         response.json().then(function (data) {
           var index = data.findIndex(e => e.country === 'US');
           if (index !== -1) {
-              //console.log(data[index].lat, data[index].lon);
+              cityErrorEl.textContent = 'We support only US citites for now!!';
+              cityErrorEl.setAttribute ('class','cityValid');
               getWeatherData(data[index].lat,data[index].lon);
+              recentSearches(trimmedCityName);
+          } else {
+            cityErrorEl.textContent = 'Please search US Cities ONLY!!'; 
+            cityName.value = '';
+            cityErrorEl.setAttribute ('class','cityError');
+            return; 
           }
         });
       } else {
@@ -61,18 +66,18 @@ function getLatLon(trimmedCityName) {
     });
 }
 
-
+//function to get weather data using Lat and Lon
 function getWeatherData(arrLat, arrLon) {
 
   var exclusion = '&exclude=minutely,hourly';
-  //console.log(arrLat,arrLon);
+
   forecastReqURL = forecastURL + arrLat + "&lon=" + arrLon + exclusion + weatherAPIKey + '&units=imperial';
-  //console.log(forecastURL);
+
 
   fetch(forecastReqURL)
   .then(function (response) {
     if (response.ok) {
-      //console.log(response);
+
       response.json().then(function (data) {
         console.log(data);
         buildPage(data);
@@ -90,6 +95,7 @@ function getWeatherData(arrLat, arrLon) {
 
 }
 
+// Function to convert unix UTC to standard date
 function convertUTC2date(unixTimestamp){
     var milliseconds = unixTimestamp * 1000;
     var dateObject = new Date(milliseconds)
@@ -101,10 +107,11 @@ function convertUTC2date(unixTimestamp){
     return convertedDate;
 }
 
+
+//Function to build the page
 function buildPage(data){
 
   //Setting up current weather header data
-
   currWeatherDiv.innerHTML =''
   var currentHeaderEl = document.createElement("h2");
   currentHeaderEl.setAttribute('class','col-lg-12 row custom-header');
@@ -123,9 +130,8 @@ function buildPage(data){
   var currentMoodIcon = document.createElement('img');
   const currentIconLink = 'http://openweathermap.org/img/wn/'+ data.current.weather[0].icon + '.png';
   currentMoodIcon.setAttribute ('src', currentIconLink);
+  
   currentMoodDiv.appendChild(currentMoodIcon);
-
-
   currentHeaderEl.appendChild(currentCityEl);
   currentHeaderEl.appendChild(spaceSpan);
   currentHeaderEl.appendChild(currentDateEl);
@@ -133,7 +139,6 @@ function buildPage(data){
   currWeatherDiv.appendChild(currentHeaderEl);
 
   //Setting up current weather information 
-
   var currentTempEl = document.createElement('p');
   currentTempEl.textContent = 'Temp : ' + data.current.temp + "°F";
 
@@ -205,27 +210,42 @@ function buildPage(data){
   }
 }
 
+//function to store recenta searches in localStorage
 function recentSearches(recentlySearchedCity) {
   var keyID = localStorage.length;
+  var foundInLS = false;
   console.log(keyID);
-  if (keyID == 12) {
-    console.log ('inside 8');
-    for (i=0; i<keyID;i++){
-      keyPlus1 = i + 1; 
-      cityPlus1= localStorage.getItem(keyPlus1)
-      localStorage.setItem(i,cityPlus1)
+  // Dont update the city in localStorage if it is default city or if it is already present in recent search
+
+  console.log(trimmedCityName, defaultCity);
+
+  if (!defaultCity) {
+    for (i=0;i<=keyID-1; i++){
+      //console.log(trimmedCityName, localStorage.getItem(i))
+      if(trimmedCityName == localStorage.getItem(i)) {
+        foundInLS = true;
+      }
     }
-    localStorage.setItem(keyID,recentlySearchedCity);
-  }  else if (keyID >= 0 && keyID < 12) {
-    console.log ('inside < 8');
-    localStorage.setItem(keyID,recentlySearchedCity)  
-  };
-  populateRecentSearch();
+    
+    if (keyID == 12 & !foundInLS) {
+      for (i=0; i<keyID;i++){
+        keyPlus1 = i + 1; 
+        cityPlus1= localStorage.getItem(keyPlus1)
+        localStorage.setItem(i,cityPlus1)
+      }
+      localStorage.setItem(keyID,recentlySearchedCity);
+    }  else if (keyID >= 0 && keyID < 12 && !foundInLS) {
+      localStorage.setItem(keyID,recentlySearchedCity)  
+    };
+    populateRecentSearch();
+  } else {
+    defaultCity = false;
+    return;
+  }
 }
 
+//function to retrieve and build recently searched city 
 function populateRecentSearch() {
-  //create recently searched buttons
-
   totalCitySeraches = localStorage.length; 
   console.log('before building recent search ' + totalCitySeraches);
   cityDiv.innerHTML = '';
@@ -238,18 +258,21 @@ function populateRecentSearch() {
   }
 }
 
-//Initial  Pageload with plceholder City Seattle! 
+//Initial  Pageload with plceholder City Seattle! if the user just loads the page the last searched value city's data will be displayed
 window.onload = function () {
-  console.log("in windows Onload")
   if (localStorage.length <=0) {
     trimmedCityName = 'Seattle';
+    defaultCity = true;
     getLatLon(trimmedCityName);
   } else {
     trimmedCityName = localStorage.getItem(localStorage.length-1);
+    cityName.setAttribute ('placeholder',trimmedCityName)
     console.log(trimmedCityName);
     getLatLon(trimmedCityName);
     populateRecentSearch()
   }
 }
+
+//Hnadling click events
 submitBtn.addEventListener('click',callGeoCoding,false); 
 cityDiv.addEventListener('click',callGeoCoding,false); 
