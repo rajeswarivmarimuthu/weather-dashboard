@@ -107,22 +107,29 @@ function buildPage(data){
 
   currWeatherDiv.innerHTML =''
   var currentHeaderEl = document.createElement("h2");
-  currentHeaderEl.setAttribute('class','col-lg-12 row');
+  currentHeaderEl.setAttribute('class','col-lg-12 row custom-header');
 
   var currentCityEl=document.createElement('p');
-  currentCityEl.textContent = trimmedCityName + ' ';
+  currentCityEl.textContent = trimmedCityName ;
 
+  var spaceSpan = document.createElement('span');
+
+  spaceSpan.innerHTML = "&nbsp;"
 
   var currentDateEl = document.createElement('p');
-  currentDateEl.textContent = " (" + convertUTC2date(data.current.dt) + ")";
+  currentDateEl.textContent = "(" + convertUTC2date(data.current.dt) + ")";
 
+  var currentMoodDiv = document.createElement("div");
   var currentMoodIcon = document.createElement('img');
   const currentIconLink = 'http://openweathermap.org/img/wn/'+ data.current.weather[0].icon + '.png';
   currentMoodIcon.setAttribute ('src', currentIconLink);
+  currentMoodDiv.appendChild(currentMoodIcon);
+
 
   currentHeaderEl.appendChild(currentCityEl);
+  currentHeaderEl.appendChild(spaceSpan);
   currentHeaderEl.appendChild(currentDateEl);
-  currentHeaderEl.appendChild(currentMoodIcon);
+  currentHeaderEl.appendChild(currentMoodDiv);
   currWeatherDiv.appendChild(currentHeaderEl);
 
   //Setting up current weather information 
@@ -137,7 +144,14 @@ function buildPage(data){
   currentHumidityEl.textContent = "Humidity : " + data.current.humidity + "%"
 
   var currentUVIEl = document.createElement('p');
-  currentUVIEl.textContent = "uvi" + data.current.uvi;
+  currentUVIEl.textContent = "UV Index : "
+  var uviSpan = document.createElement('span');
+  uviSpan.textContent =  data.current.uvi;
+
+  if (data.current.uvi < 1) {
+    uviSpan.setAttribute('class','uv-green')
+  }
+  currentUVIEl.appendChild(uviSpan);
 
   currWeatherDiv.appendChild(currentTempEl);
   currWeatherDiv.appendChild(currentWindEl);
@@ -153,34 +167,37 @@ function buildPage(data){
   for (let i=0; i<=4; i++){
 
     var cardDiv = document.createElement("div"); 
-    cardDiv.setAttribute('class', 'card');
+    cardDiv.setAttribute('class', 'card card-style');
 
-    var cardTitle = document.createElement("h5");
-    cardTitle.setAttribute('class', "card-title")
+    var cardTitle = document.createElement("h4");
+    cardTitle.setAttribute('class', "card-title ml-2 mt-2")
     cardTitle.innerHTML = convertUTC2date(data.daily[i].dt);
 
+    
+    var iconCurrentDiv = document.createElement("div");
     var cardMoodIcon = document.createElement('img');
     const cardIconLink = 'http://openweathermap.org/img/wn/'+ data.daily[i].weather[0].icon + '.png';
     cardMoodIcon.setAttribute('src',cardIconLink);
+    iconCurrentDiv.appendChild(cardMoodIcon);
 
 
     var cardTemp = document.createElement("p");
-    cardTemp.setAttribute('class', "card-text");
+    cardTemp.setAttribute('class', "card-text ml-2");
     var temp = 'Temp : ' + data.daily[i].temp.day + "°F"
     cardTemp.innerText = temp;
 
     var cardWind = document.createElement("p");
-    cardWind.setAttribute('class', "card-text");
+    cardWind.setAttribute('class', "card-text ml-2");
     var wind = 'Wind : ' + data.daily[i].wind_speed + "MPH";
     cardWind.innerText = wind;
 
     var cardHumidity = document.createElement("p");
-    cardHumidity.setAttribute('class','card-text');
+    cardHumidity.setAttribute('class','card-text ml-2');
     var humidity = "Humidity :" + data.daily[i].humidity + "%"
     cardHumidity.innerText = humidity;
 
     cardDiv.appendChild(cardTitle);
-    cardDiv.appendChild(cardMoodIcon);
+    cardDiv.appendChild(iconCurrentDiv);
     cardDiv.appendChild(cardTemp);
     cardDiv.appendChild(cardWind);
     cardDiv.appendChild(cardHumidity);
@@ -191,7 +208,7 @@ function buildPage(data){
 function recentSearches(recentlySearchedCity) {
   var keyID = localStorage.length;
   console.log(keyID);
-  if (keyID == 8) {
+  if (keyID == 12) {
     console.log ('inside 8');
     for (i=0; i<keyID;i++){
       keyPlus1 = i + 1; 
@@ -199,7 +216,7 @@ function recentSearches(recentlySearchedCity) {
       localStorage.setItem(i,cityPlus1)
     }
     localStorage.setItem(keyID,recentlySearchedCity);
-  }  else if (keyID >= 0 && keyID < 8) {
+  }  else if (keyID >= 0 && keyID < 12) {
     console.log ('inside < 8');
     localStorage.setItem(keyID,recentlySearchedCity)  
   };

@@ -1,15 +1,49 @@
 body {
-    font-family: 'Open Sans', sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-size: 16px;
-    line-height: 1;
+    line-height: 1.5;
+  }
+
+  h1 {
+    font-weight: 900;
+  }
+
+  p, h2{
+    line-height: 1.5;
+    font-weight: 900;
+  }
+
+  h2 {
+    margin-top: 1rem;
   }
 
   .custom-navbar {
- 
       background-image: linear-gradient(to right, #1F51FF , #000080);
       text-align: center;
       justify-content: center;
  }  
+
+ .custom-current {
+   justify-content: left;
+   border-color:black;
+   border-style: solid;
+   width: 95%
+ }
+
+ .custom-header {
+   justify-content: left;
+   align-items: top;
+ }
+
+ .uv-green {
+   border-style: solid;
+   border-radius: 5%;
+   border-color: chartreuse;
+   background-color: chartreuse;
+ }
+
+
+
 
  hr {
   margin-top: 2rem;
@@ -17,5 +51,23 @@ body {
   margin-right: 1rem;
   margin-left: 1rem;
   border: 0;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  border-top: 1px solid black;
+}
+
+.custom-deck {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  justify-content: flex-start;
+ 
+}
+
+.card-style {
+  background-color:  #002966;
+  color: white;
+  width: 17.5%;
+  height: 15rem;
+  margin-right: 2rem;
+  margin-top: 1rem;
+
 }

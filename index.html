@@ -18,14 +18,10 @@
             <span class="navbar-text mb-0 h1 text-white">Weather Dashboard</span>
         </nav>
 
-
-        <header class="hero container text-center bg-gradient-primary text-white">
-                <h1 class="app-title m-10"> Weather Dashboard </h1>
-        </header>
         <main class='row'>
             <aside class = 'col-lg-3'>
                     <form id="city-form" class="col-12 custom-form">
-                        <h2>Search</h2> 
+                        <h2>Search for a city:</h2> 
                         <div class="form-group">
                             <input name="searchCityName" id="searchCitybyName" type="text" autofocus="true" class=" form-control rounded" />
                             <small id="cityHelp" class="form-text text-muted">We support only US citites for now!!</small>
@@ -37,10 +33,10 @@
                     <div id="recentSearch" class=" col-12 btn-group-vertical m-2"></div>
             </aside>
             
-            <div class = 'col-lg-8 m-2'>
-                <div class = 'col-lg-12' id = 'current-weather'> </div>
-                <h2 class='m-2'>5 Days Forecast</h2>
-                <div class = 'col-lg-12 card-deck container', id='card-tile'> </div>
+            <div class = 'col-lg-9 mt-3'>
+                <div class = 'col-lg-12 custom-current' id = 'current-weather'> </div>
+                <h2 class="mt-2">5-Day Forecast</h2>
+                <div class = 'col-lg-12 row custom-deck', id='card-tile'> </div>
             </div>
         </main>
         <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
