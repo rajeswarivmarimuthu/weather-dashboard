@@ -1,0 +1,21 @@
+body {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1;
+  }
+
+  .custom-navbar {
+ 
+      background-image: linear-gradient(to right, #1F51FF , #000080);
+      text-align: center;
+      justify-content: center;
+ }  
+
+ hr {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  margin-right: 1rem;
+  margin-left: 1rem;
+  border: 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
