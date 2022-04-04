@@ -8,7 +8,7 @@ var currWeatherDiv = document.getElementById("current-weather");
 var defaultCity;
 var trimmedCityName;
 var weatherAPIKey = '&appid=4bb64f9765f05da214fa658d7da7c6c8'
-var geoBaseURL = 'http://api.openweathermap.org/geo/1.0/direct?q=';
+var geoBaseURL = 'https://api.openweathermap.org/geo/1.0/direct?q=';
 var forecastURL = 'https://api.openweathermap.org/data/2.5/onecall?lat='
 
 //function to prepare for Geo coding
@@ -19,12 +19,14 @@ function callGeoCoding(event) {
     if (event.target.id == 'submitBtn') {
       trimmedCityName = cityName.value.trim();
       cityName.setAttribute ('placeholder',trimmedCityName);
+      defaultCity = false;
+      console.log("defaultCity :"  + defaultCity);
       cityName.value = '';
     } else if (event.target.id == 'recentSearchedCity') {
       trimmedCityName = event.target.innerText;
       cityName.setAttribute ('placeholder',trimmedCityName)
     }
-    console.log('in geocoding')
+    //console.log('in geocoding')
     if (trimmedCityName) {
       getLatLon(trimmedCityName);
     }
@@ -35,7 +37,7 @@ function callGeoCoding(event) {
 function getLatLon(trimmedCityName) {
     var arrLatLon = [];
     georeqURL = geoBaseURL + trimmedCityName + '&limit=5' +  weatherAPIKey;
-    console.log(georeqURL);
+    // console.log(georeqURL);
 
     fetch(georeqURL)
     .then(function (response) {
@@ -79,7 +81,7 @@ function getWeatherData(arrLat, arrLon) {
     if (response.ok) {
 
       response.json().then(function (data) {
-        console.log(data);
+        // console.log(data);
         buildPage(data);
         return;
       });
@@ -153,7 +155,7 @@ function buildPage(data){
   var uviSpan = document.createElement('span');
   uviSpan.textContent =  data.current.uvi;
 
-  if (data.current.uvi < 1) {
+  if (data.current.uvi < 4) {
     uviSpan.setAttribute('class','uv-green')
   }
   currentUVIEl.appendChild(uviSpan);
@@ -212,46 +214,42 @@ function buildPage(data){
 
 //function to store recenta searches in localStorage
 function recentSearches(recentlySearchedCity) {
-  var keyID = localStorage.length;
-  var foundInLS = false;
-  console.log(keyID);
-  // Dont update the city in localStorage if it is default city or if it is already present in recent search
+  var localStorageString = JSON.parse(localStorage.getItem("city")); 
+  arrEvent = []; 
+  var cityInLS; 
 
-  console.log(trimmedCityName, defaultCity);
+  arrEvent = localStorageString;
+
+  if (localStorageString) {
+      cityInLS = arrEvent.findIndex(e => e == trimmedCityName);
+  } else {
+    arrEvent = [];
+  }
+
+  if (localStorageString && arrEvent.length == 11) {
+      arrEvent.shift();
+  } 
 
   if (!defaultCity) {
-    for (i=0;i<=keyID-1; i++){
-      //console.log(trimmedCityName, localStorage.getItem(i))
-      if(trimmedCityName == localStorage.getItem(i)) {
-        foundInLS = true;
-      }
+    if (cityInLS == -1 || (typeof(cityInLS) == 'undefined') ) {
+      arrEvent.push(recentlySearchedCity);
+      localStorage.setItem("city",JSON.stringify(arrEvent));
     }
-    
-    if (keyID == 12 & !foundInLS) {
-      for (i=0; i<keyID;i++){
-        keyPlus1 = i + 1; 
-        cityPlus1= localStorage.getItem(keyPlus1)
-        localStorage.setItem(i,cityPlus1)
-      }
-      localStorage.setItem(keyID,recentlySearchedCity);
-    }  else if (keyID >= 0 && keyID < 12 && !foundInLS) {
-      localStorage.setItem(keyID,recentlySearchedCity)  
-    };
-    populateRecentSearch();
-  } else {
-    defaultCity = false;
-    return;
+  } 
+ 
+  if (arrEvent.length) {
+    populateRecentSearch(arrEvent); 
   }
 }
 
 //function to retrieve and build recently searched city 
-function populateRecentSearch() {
-  totalCitySeraches = localStorage.length; 
-  console.log('before building recent search ' + totalCitySeraches);
+function populateRecentSearch(arrEvent) {
+
   cityDiv.innerHTML = '';
-  for (i=totalCitySeraches;i>0;i--){
+  
+  for (i=arrEvent.length-1;i>=0;i--){
     var citySearchButton = document.createElement('button');
-    citySearchButton.textContent = localStorage.getItem(i-1);
+    citySearchButton.textContent = arrEvent[i];
     citySearchButton.setAttribute('class',"btn btn-secondary rounded my-2");
     citySearchButton.setAttribute('id',"recentSearchedCity");
     cityDiv.appendChild(citySearchButton);
@@ -260,16 +258,19 @@ function populateRecentSearch() {
 
 //Initial  Pageload with plceholder City Seattle! if the user just loads the page the last searched value city's data will be displayed
 window.onload = function () {
-  if (localStorage.length <=0) {
-    trimmedCityName = 'Seattle';
+  var isItFirstTimeLoad = localStorage.getItem("city");
+  var arrEvent = [];
+  arrEvent = JSON.parse(isItFirstTimeLoad);
+  if (isItFirstTimeLoad === null) {
     defaultCity = true;
+    trimmedCityName = 'Seattle';
     getLatLon(trimmedCityName);
   } else {
-    trimmedCityName = localStorage.getItem(localStorage.length-1);
+    trimmedCityName = arrEvent[arrEvent.length-1];
     cityName.setAttribute ('placeholder',trimmedCityName)
-    console.log(trimmedCityName);
+    //console.log(trimmedCityName);
     getLatLon(trimmedCityName);
-    populateRecentSearch()
+    populateRecentSearch(arrEvent);
   }
 }
 
