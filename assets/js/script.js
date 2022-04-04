@@ -183,7 +183,7 @@ function buildPage(data){
     
     var iconCurrentDiv = document.createElement("div");
     var cardMoodIcon = document.createElement('img');
-    const cardIconLink = 'http://openweathermap.org/img/wn/'+ data.daily[i].weather[0].icon + '.png';
+    const cardIconLink = 'https://openweathermap.org/img/wn/'+ data.daily[i].weather[0].icon + '.png';
     cardMoodIcon.setAttribute('src',cardIconLink);
     iconCurrentDiv.appendChild(cardMoodIcon);
 
