@@ -130,7 +130,7 @@ function buildPage(data){
 
   var currentMoodDiv = document.createElement("div");
   var currentMoodIcon = document.createElement('img');
-  const currentIconLink = 'http://openweathermap.org/img/wn/'+ data.current.weather[0].icon + '.png';
+  const currentIconLink = 'https://openweathermap.org/img/wn/'+ data.current.weather[0].icon + '.png';
   currentMoodIcon.setAttribute ('src', currentIconLink);
   
   currentMoodDiv.appendChild(currentMoodIcon);
